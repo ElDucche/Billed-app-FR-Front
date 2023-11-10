@@ -11,7 +11,6 @@ describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
     test("Then It should renders Login page", () => {
       document.body.innerHTML = LoginUI();
-
       const inputEmailUser = screen.getByTestId("employee-email-input");
       expect(inputEmailUser.value).toBe("");
 
@@ -169,7 +168,8 @@ describe("Given that I am a user on login page", () => {
       };
 
       const inputEmailUser = screen.getByTestId("admin-email-input");
-      fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+      expect(inputEmailUser.value).toBe("");
+      fireEvent.change(inputEmailUser, { target: { value: `johndoe@email.com` } });
       expect(inputEmailUser.value).toBe(inputData.email);
 
       const inputPasswordUser = screen.getByTestId("admin-password-input");
