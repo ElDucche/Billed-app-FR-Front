@@ -16,30 +16,48 @@ export default class NewBill {
     new Logout({ document, localStorage, onNavigate })
   }
   handleChangeFile = e => {
-    e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
+    e.preventDefault();
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const file = fileInput.files[0];
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
+    if (file) {
+        const allowedExtensions = ["jpg", "jpeg", "png"];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (allowedExtensions.includes(fileExtension)) {
+            const filePath = e.target.value.split(/\\/g);
+            const fileName = filePath[filePath.length - 1];
+            const formData = new FormData();
+            const email = JSON.parse(localStorage.getItem("user")).email;
+
+            formData.append('file', file);
+            formData.append('email', email);
+
+            this.store
+                .bills()
+                .create({
+                    data: formData,
+                    headers: {
+                        noContentType: true
+                    }
+                })
+                .then(({ fileUrl, key }) => {
+                    console.log(fileUrl);
+                    this.billId = key;
+                    this.fileUrl = fileUrl;
+                    this.fileName = fileName;
+                })
+                .catch(error => console.error(error));
+        } else {
+            // Afficher un message d'erreur ou prendre d'autres mesures pour les fichiers non autorisés
+            const span = this.document.getElementById("error-msg");
+            span.innerHTML = "Type de fichier non autorisé";
+            setTimeout(() => {span.innerHTML = ""}, 3000 )
+            // Réinitialiser la valeur du champ de fichier pour éviter d'envoyer le fichier non autorisé
+            fileInput.value = "";
         }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
-  }
+    }
+}
   handleSubmit = e => {
     e.preventDefault()
     console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
