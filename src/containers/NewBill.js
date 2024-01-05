@@ -49,7 +49,7 @@ export default class NewBill {
                 })
                 .catch(error => console.error(error));
         } else {
-            // Afficher un message d'erreur ou prendre d'autres mesures pour les fichiers non autorisés
+            // Afficher un message d'erreur pour les fichiers non autorisés
             const span = this.document.getElementById("error-msg");
             span.innerHTML = "Type de fichier non autorisé";
             setTimeout(() => {span.innerHTML = ""}, 3000 )
