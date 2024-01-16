@@ -184,4 +184,65 @@ describe("Given I am connected as an employee", () => {
       expect(updateBill).toHaveBeenCalledWith(expectedBill)
     })
   })
+  describe("When an error occurs on API", () => {
+    test("Then new bill is added to the API but fetch fails with '404 page not found' error", async () => {
+      const onNavigate = () => {}
+      const firestore = {
+        bills: () => ({ post: jest.fn(), create: jest.fn() })
+      }
+      const localStorage = window.localStorage
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        firestore,
+        localStorage,
+      })
+
+      const mockedBill = jest
+        .spyOn(mockStore, "bills")
+        .mockImplementationOnce(() => {
+          return {
+            create: jest.fn().mockRejectedValue(new Error("Erreur 404")),
+          };
+        });
+
+      await expect(mockedBill().create).rejects.toThrow("Erreur 404");
+
+      expect(mockedBill).toHaveBeenCalledTimes(1);
+
+      expect(newBill.billId).toBeNull();
+      expect(newBill.fileUrl).toBeNull();
+      expect(newBill.fileName).toBeNull();
+    });
+
+    test("Then new bill is added to the API but fetch fails with '500 Internal Server error'", async () => {
+      const onNavigate = () => {}
+      const firestore = {
+        bills: () => ({ post: jest.fn(), create: jest.fn() })
+      }
+      const localStorage = window.localStorage
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        firestore,
+        localStorage,
+      })
+
+      const mockedBill = jest
+        .spyOn(mockStore, "bills")
+        .mockImplementationOnce(() => {
+          return {
+            create: jest.fn().mockRejectedValue(new Error("Erreur 500")),
+          };
+        });
+
+      await expect(mockedBill().create).rejects.toThrow("Erreur 500");
+
+      expect(mockedBill).toHaveBeenCalledTimes(2);
+
+      expect(newBill.billId).toBeNull();
+      expect(newBill.fileUrl).toBeNull();
+      expect(newBill.fileName).toBeNull();
+    });
+  });
 })
